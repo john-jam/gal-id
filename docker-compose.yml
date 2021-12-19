@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+
+  gi-db:
+    image: mongo:5.0.5-focal
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./db_docker:/data/db
+
+  gi-board:
+    image: tensorflow/tensorflow:2.7.0
+    ports:
+      - "6006:6006"
+    volumes:
+      - ./data_docker:/deploy/data
+    command: tensorboard --logdir /deploy/data/logs --port 6006 --host 0.0.0.0
+
+  gi-api:
+    image: johnjam/gi-api:0.3.0
+    depends_on:
+      - gi-db
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data_docker:/deploy/data
+    environment:
+      GI_MONGO_URI: mongodb://gi-db:27017
+
+  gi-webapp:
+    image: johnjam/gi-webapp:0.3.0
+    depends_on:
+      - gi-api
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data_docker:/deploy/data
+    environment:
+      GI_API_URL: http://gi-api:8000
+      GI_DASHBOARD_URL: ${GI_DASHBOARD_URL:-http://127.0.0.1:6006}

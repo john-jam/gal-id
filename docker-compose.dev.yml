@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+
+  gi-api:
+    build:
+      dockerfile: apps/giapi/Dockerfile
+      context: .
+
+  gi-webapp:
+    build:
+      dockerfile: apps/giwebapp/Dockerfile
+      context: .
