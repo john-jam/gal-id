@@ -35,26 +35,27 @@ def render():
             )
             reduce_learning_rate_patience = st.slider('Learning rate patience', min_value=1, max_value=10, value=2)
             epochs = st.slider('Epochs', min_value=1, value=25)
-
-        if dataset:
-            create_button = st.form_submit_button('Train')
-            if create_button:
-                try:
-                    dl_model = api_client.post_dl_model(DLModelIn(
-                        dataset_id=dataset.id,
-                        batch_size=batch_size,
-                        base_model_name=base_model_name,
-                        use_imagenet_weights=use_imagenet_weights,
-                        base_model_trainable=base_model_trainable,
-                        include_relu_dense=include_relu_dense,
-                        relu_dense_units=relu_dense_units,
-                        base_learning_rate=base_learning_rate,
-                        reduce_learning_rate_patience=reduce_learning_rate_patience,
-                        epochs=epochs,
-                    ))
-                    st.success(f'Model training scheduled: {dl_model.id}')
-                except RuntimeError as err:
-                    st.error(err)
+        create_button = st.form_submit_button('Train')
+    if create_button:
+        if not dataset:
+            st.warning('You should select a dataset')
+        else:
+            try:
+                dl_model = api_client.post_dl_model(DLModelIn(
+                    dataset_id=dataset.id,
+                    batch_size=batch_size,
+                    base_model_name=base_model_name,
+                    use_imagenet_weights=use_imagenet_weights,
+                    base_model_trainable=base_model_trainable,
+                    include_relu_dense=include_relu_dense,
+                    relu_dense_units=relu_dense_units,
+                    base_learning_rate=base_learning_rate,
+                    reduce_learning_rate_patience=reduce_learning_rate_patience,
+                    epochs=epochs,
+                ))
+                st.success(f'Model training scheduled: {dl_model.id}')
+            except RuntimeError as err:
+                st.error(err)
 
     st.markdown('### Tensorflow Dashboard')
     st_tensorboard(CONFIG.dashboard_url)
