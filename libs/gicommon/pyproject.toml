@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "gicommon"
+version = "0.4.0"
+description = "GAL-iD common lib"
+authors = ["Jonathan Langlois <jonathan.langlois@live.fr>"]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+pydantic = "^1.8.2"
+beanie = "^1.8.7"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

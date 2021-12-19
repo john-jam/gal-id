@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "giwebapp"
+version = "0.3.0"
+description = "GAL-iD web application"
+authors = ["Jonathan Langlois <jonathan.langlois@live.fr>"]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+streamlit = "1.2.0"
+gicommon = {path = "../../libs/gicommon"}
+python-decouple = "^3.5"
+psutil = "^5.8.0"
+zipp = "^3.6.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
