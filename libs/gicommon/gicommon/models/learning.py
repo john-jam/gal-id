@@ -15,6 +15,8 @@ class KerasModelEnum(str, Enum):
     MobileNetV2 = 'MobileNetV2'
     DenseNet121 = 'DenseNet121'
     NASNetMobile = 'NASNetMobile'
+    EfficientNetB2 = 'EfficientNetB2'
+    EfficientNetB3 = 'EfficientNetB3'
     EfficientNetB4 = 'EfficientNetB4'
 
     @staticmethod
