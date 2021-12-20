@@ -31,7 +31,7 @@ def render():
         with col2:
             batch_size = st.select_slider('Batch size', options=[2 ** i for i in range(1, 12)], value=32)
             base_learning_rate = st.slider(
-                'Base learning rate', min_value=0.0001, max_value=0.1, value=0.005, step=0.001, format="%.4f"
+                'Base learning rate', min_value=0.0001, max_value=0.1, value=0.005, step=0.0001, format="%.4f"
             )
             reduce_learning_rate_patience = st.slider('Learning rate patience', min_value=1, max_value=10, value=2)
             epochs = st.slider('Epochs', min_value=1, value=25)
