@@ -7,7 +7,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./db_docker:/data/db
+      - gi-db-volume:/data/db
 
   gi-board:
     image: tensorflow/tensorflow:2.7.0
@@ -15,7 +15,7 @@ services:
     ports:
       - "6006:6006"
     volumes:
-      - ./data_docker:/deploy/data
+      - gi-data-volume:/deploy/data
     command: tensorboard --logdir /deploy/data/logs --port 6006 --host 0.0.0.0
 
   gi-api:
@@ -26,7 +26,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./data_docker:/deploy/data
+      - gi-data-volume:/deploy/data
     environment:
       GI_MONGO_URI: mongodb://gi-db:27017
 
@@ -38,7 +38,12 @@ services:
     ports:
       - "8501:8501"
     volumes:
-      - ./data_docker:/deploy/data
+      - gi-data-volume:/deploy/data
     environment:
       GI_API_URL: http://gi-api:8000
       GI_DASHBOARD_URL: ${GI_DASHBOARD_URL:-http://127.0.0.1:6006}
+
+volumes:
+  gi-data-volume:
+  gi-db-volume:
+

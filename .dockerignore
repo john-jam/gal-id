@@ -15,10 +15,12 @@
 docker-compose*
 **/Dockerfile
 
+# Data
+data/
+!data/export/61c0da3866480a1840c70928.zip
+!data/export/61c0f3c266480a1840c70929.zip
+
 # Misc
 README.md
 ext/
-data/
-data_docker/
-db_docker/
 gcp/

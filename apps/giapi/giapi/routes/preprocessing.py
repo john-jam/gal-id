@@ -9,7 +9,7 @@ router = APIRouter(prefix=PREPROCESSING_PREFIX)
 
 
 @router.post(DATASETS_PATH, response_model=DatasetOut, status_code=status.HTTP_201_CREATED)
-async def post_dataset(dataset_in: DatasetIn, background_tasks: BackgroundTasks):
+async def create_dataset(dataset_in: DatasetIn, background_tasks: BackgroundTasks):
     dataset_in_db = DatasetInDB(
         **dataset_in.dict(),
         split=False
@@ -24,7 +24,7 @@ async def post_dataset(dataset_in: DatasetIn, background_tasks: BackgroundTasks)
 
 
 @router.get(DATASETS_PATH, response_model=List[DatasetOut])
-async def get_all_datasets():
+async def get_datasets():
     datasets_in_db = await DatasetInDB.find_all().to_list()
     return [Dataset.parse_obj(x) for x in datasets_in_db]
 

@@ -147,10 +147,6 @@ class DatasetManager:
             return train_idxs, test_idxs
 
     def split(self):
-        # Test if the dataset is already split
-        if self._dataset.split:
-            return
-
         # Open the original dataset
         galaxy10_decals_path = fetch_galaxy10_decals()
         with h5py.File(galaxy10_decals_path, 'r') as h5py_file_in:

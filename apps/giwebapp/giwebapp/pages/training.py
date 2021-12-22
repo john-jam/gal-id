@@ -17,12 +17,12 @@ def render():
         col1, col2 = st.columns(2)
 
         with col1:
-            datasets = api_client.get_all_datasets()
+            datasets = api_client.get_datasets()
             dataset_option = st.selectbox(
                 'Dataset', options=get_dataset_options(datasets, split_only=True), format_func=format_dataset_option
             )
             dataset = get_item_from_option(datasets, dataset_option)
-            base_model_names = api_client.get_all_base_model_names()
+            base_model_names = api_client.get_base_model_names()
             base_model_name = st.selectbox('Base model', options=base_model_names)
             use_imagenet_weights = st.checkbox('Use imagenet weights', value=True)
             base_model_trainable = st.checkbox('Base model trainable', value=True)
@@ -41,7 +41,7 @@ def render():
             st.warning('You should select a dataset')
         else:
             try:
-                dl_model = api_client.post_dl_model(DLModelIn(
+                dl_model = api_client.create_dl_model(DLModelIn(
                     dataset_id=dataset.id,
                     batch_size=batch_size,
                     base_model_name=base_model_name,

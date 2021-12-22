@@ -15,7 +15,7 @@ def render():
     with col1:
         st.markdown('### Show the dataset info')
 
-        datasets = api_client.get_all_datasets()
+        datasets = api_client.get_datasets()
         dataset_option = st.selectbox('Dataset', options=get_dataset_options(datasets),
                                       format_func=format_dataset_option)
         dataset = get_item_from_option(datasets, dataset_option)
@@ -35,7 +35,7 @@ def render():
             create_button = st.form_submit_button('Create Dataset')
         if create_button:
             try:
-                dataset = api_client.post_dataset(DatasetIn(
+                dataset = api_client.create_dataset(DatasetIn(
                     test_size=test_size,
                     random_state=random_state,
                     image_size=image_size,

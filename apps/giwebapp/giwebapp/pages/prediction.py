@@ -62,7 +62,7 @@ def render():
         image = np.array(Image.open(BytesIO(response.content)))
         st.image(image)
 
-        dl_models = api_client.get_all_dl_models()
+        dl_models = api_client.get_dl_models()
         dl_model_option = st.selectbox(
             'Model', options=get_dl_models_options(dl_models, trained_only=True), format_func=format_dl_model_option
         )
@@ -76,7 +76,7 @@ def render():
         if predict_button:
             try:
                 with st.spinner('Predicting...'):
-                    prediction = api_client.post_prediction(dl_model.id, PredictionIn(image=image.tolist()))
+                    prediction = api_client.predict_image(dl_model.id, PredictionIn(image=image.tolist()))
 
                 st.markdown('#### Predicted image')
                 st.image(get_decals_sample_image(prediction.category))

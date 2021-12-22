@@ -3,6 +3,7 @@ from gicommon.models.learning import Evaluation, EvaluationIn
 from giwebapp.config import CONFIG
 from giwebapp.api import ApiClient
 from giwebapp.utils import get_item_from_option, get_dl_models_options, format_dl_model_option
+from giwebapp.components.tfboard import st_tensorboard
 
 api_client = ApiClient(CONFIG.api_url)
 
@@ -47,7 +48,7 @@ def render():
     col1, col2 = st.columns(2)
 
     with col1:
-        dl_models = api_client.get_all_dl_models()
+        dl_models = api_client.get_dl_models()
         dl_model_option = st.selectbox(
             'Model', options=get_dl_models_options(dl_models), format_func=format_dl_model_option
         )
@@ -64,7 +65,7 @@ def render():
             if evaluate_button:
                 try:
                     with st.spinner('Evaluating...'):
-                        dl_model = api_client.post_evaluation(dl_model.id, EvaluationIn(batch_size=batch_size))
+                        dl_model = api_client.evaluate_dl_model(dl_model.id, EvaluationIn(batch_size=batch_size))
                         render_evaluation(dl_model.evaluation)
                 except RuntimeError as err:
                     st.error(err)
@@ -72,5 +73,26 @@ def render():
                 render_evaluation(dl_model.evaluation)
 
         st.markdown('### Model info')
-
         st.json(dl_model.json())
+
+    if dl_model and dl_model.trained:
+        export_button = st.button('Export')
+        if export_button:
+            try:
+                with st.spinner('Exporting...'):
+                    api_client.export_dl_model(dl_model.id)
+                st.success(f'Model exported: {dl_model.id}')
+            except RuntimeError as err:
+                st.error(err)
+
+    st.markdown('### Tensorflow Dashboard')
+    st_tensorboard(CONFIG.dashboard_url)
+
+    st.markdown('### Import Models')
+    import_button = st.button('Import')
+    if import_button:
+        try:
+            api_client.import_dl_models()
+            st.success(f'Models import scheduled')
+        except RuntimeError as err:
+            st.error(err)

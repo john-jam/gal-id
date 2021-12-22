@@ -14,26 +14,31 @@ from giapi.config import CONFIG
 from giapi.logging import logger
 
 
-def scale_image(image):
-    return (image / 255.0 - 0.5) * 2
-
-
 class DLModelManager:
     def __init__(self, dl_model: DLModel):
         self._dl_model = dl_model
         self._image_shape = (self._dl_model.dataset.image_size, self._dl_model.dataset.image_size, 3)
 
-    def get_save_path(self):
-        formatted_date = self._dl_model.created_at.strftime('%Y-%m-%d-%H-%M-%S')
-        return os.path.join(CONFIG.data_path, 'models', f'{formatted_date}_{str(self._dl_model.id)}.h5')
+    @staticmethod
+    def get_path(dl_model: DLModel, sub_folder_name):
+        formatted_date = dl_model.created_at.strftime('%Y-%m-%d-%H-%M-%S')
+        return os.path.join(CONFIG.data_path, sub_folder_name, f'{formatted_date}_{str(dl_model.id)}')
 
-    def get_logs_path(self):
-        formatted_date = self._dl_model.created_at.strftime('%Y-%m-%d-%H-%M-%S')
-        return os.path.join(CONFIG.data_path, 'logs', f'{formatted_date}_{str(self._dl_model.id)}')
+    @staticmethod
+    def get_save_path(dl_model: DLModel):
+        return f"{DLModelManager.get_path(dl_model, 'models')}.h5"
+
+    @staticmethod
+    def get_logs_path(dl_model: DLModel):
+        return DLModelManager.get_path(dl_model, 'logs')
+
+    @staticmethod
+    def scale_image(image):
+        return (image / 255.0 - 0.5) * 2
 
     def get_generators(self):
         aug_datagen = ImageDataGenerator(
-            preprocessing_function=scale_image,
+            preprocessing_function=DLModelManager.scale_image,
             rotation_range=90,
             zoom_range=[0.5, 2.0],
             horizontal_flip=True,
@@ -42,7 +47,7 @@ class DLModelManager:
             # brightness_range=[0.2, 0.8]
         )
         std_datagen = ImageDataGenerator(
-            preprocessing_function=scale_image
+            preprocessing_function=DLModelManager.scale_image
         )
         return aug_datagen, std_datagen
 
@@ -88,9 +93,10 @@ class DLModelManager:
         model = self.get_model(compile_model=True)
 
         # Define the callbacks
-        save_path = self.get_save_path()
+        save_path = DLModelManager.get_save_path(self._dl_model)
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        logs_path = self.get_logs_path()
+        logs_path = DLModelManager.get_logs_path(self._dl_model)
+        os.makedirs(os.path.dirname(logs_path), exist_ok=True)
         callbacks = [
             ReduceLROnPlateau(
                 monitor='val_loss',
@@ -131,7 +137,7 @@ class DLModelManager:
         model = self.get_model(compile_model=True)
 
         # Load the best epoch
-        save_path = self.get_save_path()
+        save_path = DLModelManager.get_save_path(self._dl_model)
         model.load_weights(save_path)
 
         # Evaluate the model
@@ -145,7 +151,7 @@ class DLModelManager:
         model = self.get_model(compile_model=False)
 
         # Load the best epoch
-        save_path = self.get_save_path()
+        save_path = DLModelManager.get_save_path(self._dl_model)
         model.load_weights(save_path)
 
         # Prepare the image
@@ -153,7 +159,7 @@ class DLModelManager:
             (self._dl_model.dataset.image_size, self._dl_model.dataset.image_size)
         )
         image = np.array(image)
-        image = scale_image(image)
+        image = DLModelManager.scale_image(image)
         image = np.expand_dims(image, axis=0)
 
         # Predict the image

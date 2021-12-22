@@ -19,6 +19,7 @@ RUN cd /deploy/apps/giapi/\
     && poetry install -vvv
 
 # Copy the sources
+COPY data/export /deploy/data/export/
 COPY apps/giapi/run.py /deploy/apps/giapi/
 COPY apps/giapi/giapi /deploy/apps/giapi/giapi/
 
