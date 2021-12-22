@@ -19,15 +19,15 @@ class EvaluationRunner:
         self.__queue = Queue()
 
     def _evaluate(self, batch_size):
-        train_scores, test_scores = self.__dl_manager.evaluate(batch_size)
-        self.__queue.put([train_scores, test_scores])
+        train_true, train_pred, test_true, test_pred = self.__dl_manager.evaluate(batch_size)
+        self.__queue.put([train_true, train_pred, test_true, test_pred])
 
     def evaluate(self, batch_size):
         process = Process(target=self._evaluate, args=(batch_size,))
         process.start()
+        train_true, train_pred, test_true, test_pred = self.__queue.get()
         process.join()
-        train_scores, test_scores = self.__queue.get_nowait()
-        return train_scores, test_scores
+        return train_true, train_pred, test_true, test_pred
 
 
 class PredictionRunner:
@@ -42,6 +42,6 @@ class PredictionRunner:
     def predict(self, image: np.ndarray):
         process = Process(target=self._predict, args=(image,))
         process.start()
+        probabilities, category = self.__queue.get()
         process.join()
-        probabilities, category = self.__queue.get_nowait()
         return probabilities, category

@@ -1,4 +1,7 @@
 import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import ConfusionMatrixDisplay
 from gicommon.models.learning import Evaluation, EvaluationIn
 from giwebapp.config import CONFIG
 from giwebapp.api import ApiClient
@@ -11,12 +14,17 @@ api_client = ApiClient(CONFIG.api_url)
 def render_evaluation(evaluation: Evaluation):
     st.markdown('### Model evaluation')
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns([1, 1, 2])
     with col1:
         st.metric(
             'Train Accuracy',
             value="%.4f" % evaluation.train_accuracy,
             delta="%.4f" % (evaluation.train_accuracy - evaluation.test_accuracy)
+        )
+        st.metric(
+            'Test Accuracy',
+            value="%.4f" % evaluation.test_accuracy,
+            delta="%.4f" % (evaluation.test_accuracy - evaluation.train_accuracy)
         )
     with col2:
         st.metric(
@@ -25,19 +33,16 @@ def render_evaluation(evaluation: Evaluation):
             delta="%.4f" % (evaluation.train_loss - evaluation.test_loss),
             delta_color='inverse'
         )
-    with col3:
         st.metric(
-            'Test Accuracy',
-            value="%.4f" % evaluation.test_accuracy,
-            delta="%.4f" % (evaluation.test_accuracy - evaluation.train_accuracy)
-        )
-    with col4:
-        st.metric(
-            'Loss',
+            'Test Loss',
             value="%.4f" % evaluation.test_loss,
             delta="%.4f" % (evaluation.test_loss - evaluation.train_loss),
             delta_color='inverse'
         )
+    with col3:
+        fig, ax = plt.subplots()
+        ConfusionMatrixDisplay(confusion_matrix=np.array(evaluation.test_confusion_matrix)).plot(ax=ax)
+        st.pyplot(fig)
 
 
 def render():
@@ -73,6 +78,7 @@ def render():
                 render_evaluation(dl_model.evaluation)
 
         st.markdown('### Model info')
+        del dl_model.evaluation
         st.json(dl_model.json())
 
     if dl_model and dl_model.trained:

@@ -2,6 +2,7 @@ import numpy as np
 from typing import List
 from fastapi import APIRouter, HTTPException, BackgroundTasks, status
 from beanie import PydanticObjectId
+from sklearn.metrics import log_loss, confusion_matrix, accuracy_score
 from gicommon.routes import LEARNING_PREFIX, DL_MODELS_PATH, BASE_MODEL_NAMES_PATH, EVALUATION_PATH, PREDICTION_PATH, \
     EXPORT_PATH, IMPORT_PATH
 from gicommon.models.learning import DLModel, DLModelInDB, DLModelIn, DLModelOut, KerasModelEnum, Evaluation, \
@@ -57,14 +58,25 @@ async def evaluate_dl_model(dl_model_id: PydanticObjectId, evaluation: Evaluatio
     dl_model, dl_model_in_db = await must_fetch_dl_model(dl_model_id)
 
     await update_dl_model_status(dl_model_in_db, busy=True)
-    train_scores, test_scores = EvaluationRunner(DLModelManager(dl_model)).evaluate(evaluation.batch_size)
+    train_true, train_pred, test_true, test_pred = EvaluationRunner(DLModelManager(dl_model)).evaluate(
+        evaluation.batch_size)
     await update_dl_model_status(dl_model_in_db, busy=False)
 
+    train_pred_argmax = np.argmax(train_pred, axis=1)
+    test_pred_argmax = np.argmax(test_pred, axis=1)
+
+    train_loss = log_loss(train_true, train_pred)
+    train_accuracy = accuracy_score(train_true, train_pred_argmax)
+    test_loss = log_loss(test_true, test_pred)
+    test_accuracy = accuracy_score(test_true, test_pred_argmax)
+    test_confusion_matrix = confusion_matrix(test_true, test_pred_argmax)
+
     dl_model_in_db.evaluation = Evaluation(
-        train_loss=train_scores[0],
-        train_accuracy=train_scores[1],
-        test_loss=test_scores[0],
-        test_accuracy=test_scores[1],
+        train_loss=train_loss,
+        train_accuracy=train_accuracy,
+        test_loss=test_loss,
+        test_accuracy=test_accuracy,
+        test_confusion_matrix=test_confusion_matrix.tolist(),
     )
     await dl_model_in_db.save()
     dl_model = DLModel.parse_obj(dl_model_in_db)

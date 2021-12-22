@@ -131,7 +131,7 @@ class DLModelManager:
         # Create the image generators and iterators
         _, std_datagen = self.get_generators()
         dataset_manager = DatasetManager(self._dl_model.dataset)
-        train_it, test_it = dataset_manager.get_iterators(std_datagen, std_datagen, batch_size)
+        train_it, test_it = dataset_manager.get_iterators(std_datagen, std_datagen, batch_size, shuffle=False)
 
         # Create the model
         model = self.get_model(compile_model=True)
@@ -141,10 +141,12 @@ class DLModelManager:
         model.load_weights(save_path)
 
         # Evaluate the model
-        train_scores = model.evaluate(train_it)
-        test_scores = model.evaluate(test_it)
+        train_true = train_it.classes
+        train_pred = model.predict(train_it)
+        test_true = test_it.classes
+        test_pred = model.predict(test_it)
 
-        return train_scores, test_scores
+        return train_true, train_pred, test_true, test_pred
 
     def predict(self, image: np.ndarray):
         # Create the model

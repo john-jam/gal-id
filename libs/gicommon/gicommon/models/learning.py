@@ -29,6 +29,7 @@ class Evaluation(BaseModel):
     train_accuracy: float
     test_loss: float
     test_accuracy: float
+    test_confusion_matrix: List[Any]
 
 
 class EvaluationIn(BaseModel):

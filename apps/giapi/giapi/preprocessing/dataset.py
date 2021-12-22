@@ -27,24 +27,25 @@ class DatasetManager:
         test_path = os.path.join(dataset_path, 'test')
         return train_path, test_path
 
-    def get_memory_iterator(self, generator: ImageDataGenerator, x, y, batch_size):
+    def get_memory_iterator(self, generator: ImageDataGenerator, x, y, batch_size, shuffle=True):
         return generator.flow(
             x,
             y,
             batch_size=batch_size,
-            shuffle=True
+            shuffle=shuffle
         )
 
-    def get_disk_iterator(self, generator: ImageDataGenerator, dir_path, batch_size):
+    def get_disk_iterator(self, generator: ImageDataGenerator, dir_path, batch_size, shuffle=True):
         return generator.flow_from_directory(
             dir_path,
             class_mode='categorical',
             batch_size=batch_size,
             target_size=(self._dataset.image_size, self._dataset.image_size),
-            shuffle=True
+            shuffle=shuffle
         )
 
-    def get_iterators(self, train_generator: ImageDataGenerator, test_generator: ImageDataGenerator, batch_size):
+    def get_iterators(self, train_generator: ImageDataGenerator, test_generator: ImageDataGenerator, batch_size,
+                      shuffle=True):
         if self._dataset.compressed:
             # Return memory iterators
             h5py_file_path = self.get_dataset_path(is_h5=True)
@@ -55,13 +56,13 @@ class DatasetManager:
                                          CONFIG.galaxy10_decals_num_categories)
                 y_test = to_categorical(np.array(h5py_file['test']['categories']),
                                         CONFIG.galaxy10_decals_num_categories)
-            train_it = self.get_memory_iterator(train_generator, x_train, y_train, batch_size)
-            test_it = self.get_memory_iterator(test_generator, x_test, y_test, batch_size)
+            train_it = self.get_memory_iterator(train_generator, x_train, y_train, batch_size, shuffle)
+            test_it = self.get_memory_iterator(test_generator, x_test, y_test, batch_size, shuffle)
         else:
             # Return disks iterators
             train_path, test_path = self.get_train_test_paths()
-            train_it = self.get_disk_iterator(train_generator, train_path, batch_size)
-            test_it = self.get_disk_iterator(test_generator, test_path, batch_size)
+            train_it = self.get_disk_iterator(train_generator, train_path, batch_size, shuffle)
+            test_it = self.get_disk_iterator(test_generator, test_path, batch_size, shuffle)
         return train_it, test_it
 
     def preprocess_images(self, images, original_size):

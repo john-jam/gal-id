@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gicommon"
-version = "0.6.1"
+version = "0.8.0"
 description = "GAL-iD common lib"
 authors = ["Jonathan Langlois <jonathan.langlois@live.fr>"]
 
