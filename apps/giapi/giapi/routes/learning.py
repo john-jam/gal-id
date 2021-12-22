@@ -62,14 +62,18 @@ async def evaluate_dl_model(dl_model_id: PydanticObjectId, evaluation: Evaluatio
         evaluation.batch_size)
     await update_dl_model_status(dl_model_in_db, busy=False)
 
-    train_pred_argmax = np.argmax(train_pred, axis=1)
-    test_pred_argmax = np.argmax(test_pred, axis=1)
-
     train_loss = log_loss(train_true, train_pred)
-    train_accuracy = accuracy_score(train_true, train_pred_argmax)
     test_loss = log_loss(test_true, test_pred)
-    test_accuracy = accuracy_score(test_true, test_pred_argmax)
-    test_confusion_matrix = confusion_matrix(test_true, test_pred_argmax)
+
+    if dl_model.dataset.compressed:
+        train_true = np.argmax(train_true, axis=1)
+        test_true = np.argmax(test_true, axis=1)
+    train_pred = np.argmax(train_pred, axis=1)
+    test_pred = np.argmax(test_pred, axis=1)
+
+    train_accuracy = accuracy_score(train_true, train_pred)
+    test_accuracy = accuracy_score(test_true, test_pred)
+    test_confusion_matrix = confusion_matrix(test_true, test_pred)
 
     dl_model_in_db.evaluation = Evaluation(
         train_loss=train_loss,

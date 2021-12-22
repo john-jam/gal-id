@@ -141,9 +141,13 @@ class DLModelManager:
         model.load_weights(save_path)
 
         # Evaluate the model
-        train_true = train_it.classes
+        if self._dl_model.dataset.compressed:
+            train_true = train_it.y
+            test_true = test_it.y
+        else:
+            train_true = train_it.classes
+            test_true = test_it.classes
         train_pred = model.predict(train_it)
-        test_true = test_it.classes
         test_pred = model.predict(test_it)
 
         return train_true, train_pred, test_true, test_pred
