@@ -41,9 +41,6 @@ if [[ ! -f ${INIT_FLAG_FILE} ]]; then
     mkdir -p ${GAL_ID_PROJECT_PATH}
     wget ${GAL_ID_DOCKER_COMPOSE_URL} -P ${GAL_ID_PROJECT_PATH}
 
-    # Pull the images
-    docker-compose -f ${GAL_ID_PROJECT_PATH}/docker-compose.yml pull
-
     # Clone the run.sh script
     wget ${GAL_ID_RUN_SCRIPT_URL} -P ${GAL_ID_PROJECT_PATH}
     chmod +x ${GAL_ID_PROJECT_PATH}/run.sh
