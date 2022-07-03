@@ -1,0 +1,13 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+
+jobs:
+
+  run_ci:
+    name: Run the CI pipeline
+    runs-on: self-hosted
+    steps:
+      - name: Test
+        run: sleep 30
